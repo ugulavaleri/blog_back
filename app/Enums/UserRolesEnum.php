@@ -5,6 +5,7 @@
     enum UserRolesEnum :int{
         case Admin = 1;
         case Editor = 2;
+
         case User = 3;
 
         public function title(): string

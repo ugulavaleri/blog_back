@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreBlogPostRequest;
-use App\Http\Requests\UpdateBlogPostRequest;
+use App\Http\Requests\BlogPosts\StoreBlogPostRequest;
+use App\Http\Requests\BlogPosts\UpdateBlogPostRequest;
 use App\Models\BlogPost;
-use App\Policies\BlogPostPolicy;
-use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
 
 class BlogPostController extends Controller
 {
@@ -33,11 +30,9 @@ class BlogPostController extends Controller
     public function store(StoreBlogPostRequest $request)
     {
         $validatedData = $request->validated();
-        auth()->user()->assignRole('Admin');
-
-        $blogPost = BlogPost::create([
+        BlogPost::create([
             ...$validatedData,
-            'author_id' => auth()->id()
+            'user_id' => auth()->id()
         ]);
 
         return response()->json(['message' => 'blog post created successfully!']);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\BlogPosts;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,7 +11,7 @@ class StoreBlogPostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->user()->hasRole('Admin');
+        return true;
     }
 
     /**

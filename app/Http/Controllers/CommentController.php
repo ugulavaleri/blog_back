@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Comments\StoreCommentRequest;
 use App\Models\BlogPost;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Comment::class, 'comment');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -21,10 +26,12 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(BlogPost $blogPost,Request $request)
+    public function store(StoreCommentRequest $request, BlogPost $blogPost)
     {
+        $validatedData = $request->validated();
+
         $blogPost->comments()->create([
-            'body' => $request->body,
+            ...$validatedData,
             'user_id' => auth()->id()
         ]);
 
@@ -46,9 +53,9 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, BlogPost $blogPost, Comment $comment)
+    public function update(StoreCommentRequest $request, BlogPost $blogPost, Comment $comment)
     {
-        $comment->update($request->all());
+        $comment->update($request->validated());
         return response()->json([
             'message' => 'comment updated successfully!'
         ]);

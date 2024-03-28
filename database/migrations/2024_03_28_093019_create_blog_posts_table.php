@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
+    use App\Models\User;
+    use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
@@ -16,7 +17,7 @@ return new class extends Migration
 
             $table->string('title');
             $table->text('body');
-            $table->foreignId('author_id')->constrained('users');
+            $table->foreignIdFor(User::class)->constrained();
             $table->integer('views')->default(0);
             $table->timestamp('publish_date')->nullable();
 
