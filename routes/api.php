@@ -21,15 +21,18 @@
         return $request->user();
     });
 
-    Route::group(['prefix' => 'user'],function(){
+    Route::group(['prefix' => 'user'], function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/logout', [AuthController::class, 'logout'])
+            ->middleware('auth:sanctum');
     });
 
-    Route::group(['middleware' => 'auth:sanctum'], function () {
-        Route::apiResource('blogPosts', BlogPostController::class);
-        Route::apiResource('blogPosts.comments', CommentController::class);
-    });
+    Route::apiResource('blogPosts', BlogPostController::class);
+    Route::apiResource('blogPosts.comments', CommentController::class)
+        ->middleware('auth:sanctum');
+    Route::get('/user',[AuthController::class,'currentUser'])
+        ->middleware('auth:sanctum');
 
 
 

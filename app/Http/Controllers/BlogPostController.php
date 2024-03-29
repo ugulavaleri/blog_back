@@ -10,6 +10,7 @@ class BlogPostController extends Controller
 {
     public function __construct()
     {
+        $this->middleware('auth:sanctum')->except(['index','show']);
         $this->authorizeResource(BlogPost::class, 'blogPost');
     }
 
@@ -18,7 +19,7 @@ class BlogPostController extends Controller
      */
     public function index()
     {
-        $blogPosts = BlogPost::all();
+        $blogPosts = BlogPost::with('comments')->orderBy('created_at')->paginate(10);
         return response()->json([
             'data' => $blogPosts
         ]);
