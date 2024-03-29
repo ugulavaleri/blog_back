@@ -5,52 +5,48 @@
     use App\Http\Requests\AuthRequests\LoginUserRequest;
     use App\Http\Requests\AuthRequests\StoreUserRequest;
     use App\Models\User;
+    use App\Repositories\Interfaces\UserRepositoryInterface;
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Hash;
 
     class AuthController extends Controller
     {
+        public function __construct(public UserRepositoryInterface $userRepository){}
+
         public function register(StoreUserRequest $request)
         {
-            $validated = $request->validated();
-            $validated['password'] = Hash::make($validated['password']);
-
-            $user = User::create($validated);
-
-            $user->assignRole($request->role);
-
-            return response()->json([
-                'success' => 'User Registered Successfully!',
-                'access_token' => $user->createToken('user-token')->plainTextToken,
-                'user' => $user
-            ]);
+            try {
+                return $this->userRepository->register($request);
+            } catch (\Throwable $th) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $th->getMessage(),
+                ], 500);
+            }
         }
 
         public function login(LoginUserRequest $request)
         {
-            $data = $request->validated();
-
-            if (!Auth::attempt($data)) {
+            try {
+                return $this->userRepository->login($request);
+            } catch (\Throwable $th) {
                 return response()->json([
-                    'error' => 'Credentials Do Not Match!'
-                ], 401);
+                    'status' => false,
+                    'message' => $th->getMessage(),
+                ], 500);
             }
-
-            $user = User::whereEmail($data['email'])->first();
-
-            return response()->json([
-                'success' => 'User Logging Successfully!',
-                'access_token' => $user->createToken('user-token')->plainTextToken,
-                'user' => $user
-            ]);
         }
 
         public function logout()
         {
-            auth()->user()->tokens()->delete();
-            return response()->json([
-                'success' => 'user logout successfully! '
-            ]);
+            try {
+                return $this->userRepository->logout();
+            } catch (\Throwable $th) {
+                return response()->json([
+                    'status' => false,
+                    'message' => $th->getMessage(),
+                ], 500);
+            }
         }
 
         public function currentUser()

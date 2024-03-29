@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Comments\StoreCommentRequest;
 use App\Models\BlogPost;
 use App\Models\Comment;
-use Illuminate\Http\Request;
+use App\Repositories\Interfaces\CommentRepositoryInterface;
 
 class CommentController extends Controller
 {
-    public function __construct()
+    public function __construct(
+        public CommentRepositoryInterface $commentRepository
+    )
     {
         $this->authorizeResource(Comment::class, 'comment');
     }
@@ -18,9 +20,14 @@ class CommentController extends Controller
      */
     public function index(BlogPost $blogPost)
     {
-        return response()->json([
-            'message' => $blogPost->comments
-        ]);
+        try {
+            return $this->commentRepository->index($blogPost);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -28,16 +35,14 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request, BlogPost $blogPost)
     {
-        $validatedData = $request->validated();
-
-        $blogPost->comments()->create([
-            ...$validatedData,
-            'user_id' => auth()->id()
-        ]);
-
-        return response()->json([
-            'message' => 'comment added successfully!'
-        ]);
+        try {
+            return $this->commentRepository->store($request,$blogPost);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -45,9 +50,14 @@ class CommentController extends Controller
      */
     public function show(BlogPost $blogPost,Comment $comment)
     {
-        return response()->json([
-            'message' => $comment
-        ]);
+        try {
+            return $this->commentRepository->show($blogPost,$comment);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -55,10 +65,14 @@ class CommentController extends Controller
      */
     public function update(StoreCommentRequest $request, BlogPost $blogPost, Comment $comment)
     {
-        $comment->update($request->validated());
-        return response()->json([
-            'message' => 'comment updated successfully!'
-        ]);
+        try {
+            return $this->commentRepository->update($request,$blogPost,$comment);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -66,9 +80,13 @@ class CommentController extends Controller
      */
     public function destroy(BlogPost $blogPost,Comment $comment)
     {
-        $comment->delete();
-        return response()->json([
-            'message' => 'comment removed successfully!'
-        ]);
+        try {
+            return $this->commentRepository->destroy($blogPost,$comment);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 }

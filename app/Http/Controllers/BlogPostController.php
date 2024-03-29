@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BlogPosts\StoreBlogPostRequest;
 use App\Http\Requests\BlogPosts\UpdateBlogPostRequest;
 use App\Models\BlogPost;
+use App\Repositories\Interfaces\BlogPostRepositoryInterface;
 
 class BlogPostController extends Controller
 {
-    public function __construct()
+    public function __construct(
+        public BlogPostRepositoryInterface $blogPostRepository
+    )
     {
         $this->middleware('auth:sanctum')->except(['index','show']);
         $this->authorizeResource(BlogPost::class, 'blogPost');
@@ -19,10 +22,14 @@ class BlogPostController extends Controller
      */
     public function index()
     {
-        $blogPosts = BlogPost::with(['comments','user','comments.user'])->orderBy('created_at')->paginate(10);
-        return response()->json([
-            'data' => $blogPosts
-        ]);
+        try {
+            return $this->blogPostRepository->index();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -30,13 +37,14 @@ class BlogPostController extends Controller
      */
     public function store(StoreBlogPostRequest $request)
     {
-        $validatedData = $request->validated();
-        BlogPost::create([
-            ...$validatedData,
-            'user_id' => auth()->id()
-        ]);
-
-        return response()->json(['message' => 'blog post created successfully!']);
+        try {
+            return $this->blogPostRepository->store($request);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -44,9 +52,14 @@ class BlogPostController extends Controller
      */
     public function show(BlogPost $blogPost)
     {
-        return response()->json([
-            'data' => $blogPost
-        ]);
+        try {
+            return $this->blogPostRepository->show($blogPost);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -54,11 +67,14 @@ class BlogPostController extends Controller
      */
     public function update(UpdateBlogPostRequest $request, BlogPost $blogPost)
     {
-        $blogPost->update($request->validated());
-
-        return response()->json([
-            'message' => 'Blog post updated successfully!'
-        ]);
+        try {
+            return $this->blogPostRepository->update($request,$blogPost);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -66,9 +82,13 @@ class BlogPostController extends Controller
      */
     public function destroy(BlogPost $blogPost)
     {
-        $blogPost->delete();
-        return response()->json([
-            'message' => 'blog post removed successfully!'
-        ]);
+        try {
+            return $this->blogPostRepository->destroy($blogPost);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 }
