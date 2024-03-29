@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('body');
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->integer('views')->default(0);
-            $table->timestamp('publish_date')->nullable();
+            $table->timestamp('publish_date')->default(now());
 
             $table->timestamps();
         });

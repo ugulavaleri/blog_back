@@ -19,7 +19,7 @@ class BlogPostController extends Controller
      */
     public function index()
     {
-        $blogPosts = BlogPost::with('comments')->orderBy('created_at')->paginate(10);
+        $blogPosts = BlogPost::with(['comments','user','comments.user'])->orderBy('created_at')->paginate(10);
         return response()->json([
             'data' => $blogPosts
         ]);

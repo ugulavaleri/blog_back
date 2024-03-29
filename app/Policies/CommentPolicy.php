@@ -48,6 +48,6 @@ class CommentPolicy
         if($user->hasRole('Editor')){
             return false;
         }
-        return $user->hasRole('Admin');
+        return $user->hasRole('Admin') || $user->id === $comment->user_id;
     }
 }

@@ -29,7 +29,7 @@
          */
         public function create(?User $user): bool
         {
-            return $user->hasRole('Admin') || $user->hasRole('Editor');
+            return true;
         }
 
         /**
@@ -47,6 +47,7 @@
         public function delete(User $user, BlogPost $blogPost): bool
         {
             return $user->hasRole('Admin') ||
-                $user->hasPermissionTo('crud own post');
+                ($user->hasRole('Editor') && $blogPost->user_id === $user->id)
+                || $blogPost->user_id === $user->id;
         }
     }
