@@ -16,7 +16,8 @@
         {
             $this->call([
                 RolesAndPermissionsSeeder::class,
-                UserSeeder::class
+                UserSeeder::class,
+                BlogPostSeeder::class
             ]);
         }
     }
